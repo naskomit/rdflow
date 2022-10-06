@@ -233,7 +233,5 @@ impl BlockSize {
 
 
 pub trait DBlock {
-  // const SIZE: BlockSize;
-  // fn size() -> &'static BlockSize;
   fn step(&mut self);
 }
