@@ -63,7 +63,7 @@ pub const SIZE: BlockSize = BlockSize {
 };
 
 impl<'a> IBlock for Block<'a> {
-  fn step(&mut self) {
+  fn step(&self) {
     let state_update = self.state_update();
     match state_update.state1 {
       Some(x) => self.state_high.set(x),

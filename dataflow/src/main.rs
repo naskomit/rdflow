@@ -9,15 +9,13 @@ mod block_library;
 mod examples;
 
 fn main() {
-    let mut system = examples::temperature_controller::SystemImpl::new();
-    println!("{}", system.storage.r_param_get(0));
-    system.storage.r_param_set(0, 3.5);
-    println!("{}", system.storage.r_param_get(0));
-    println!("{}", system.storage.r_param_get(1));
+    let system = examples::temperature_controller::SystemImpl::new();
 
     let mut i = 0;
     while i < 100 {
+        println!("{} {}", system.storage.r_state_get(0), system.storage.b_state_get(0));
         system.step();
+        system.advance_continuous_state(0.1);
         i = i + 1;
     }
 

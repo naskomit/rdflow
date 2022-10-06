@@ -41,7 +41,7 @@ pub const SIZE: BlockSize = BlockSize {
 };
 
 impl<'a> IBlock for Block<'a> {
-  fn step(&mut self) {
+  fn step(&self) {
     let output = self.outputs();
     self.out1.set(output.out1);
   }

@@ -4,7 +4,7 @@ use crate::block::{IBlock};
 
 pub struct StorageFacade;
 
-pub struct Components<'a> {
+pub struct Blocks<'a> {
   thermal_mass: thermal_mass::Block<'a>,
   hyst_component: hysteresis::Block<'a>,
   b2f: converter_b2f::Block<'a>
@@ -12,7 +12,8 @@ pub struct Components<'a> {
 
 pub struct SystemImpl<'a> {
   pub storage: StorageFacade,
-  pub components: Components<'a>,
+  pub components: Blocks<'a>,
+  // pub block_array: [Option<&'a dyn IBlock>; 3]
 }
 
 pub const fn create_storage() -> StorageFacade {
@@ -44,6 +45,10 @@ pub const fn create_storage() -> StorageFacade {
 
 
   impl SystemStorage for StorageFacade {
+    fn sizes(&self) -> SystemSize {
+      SS
+    }
+
     fn r_param_get(&self, ind: usize) -> f64 {
       unsafe { STORAGE.r_param[ind] }
     }
@@ -115,7 +120,7 @@ impl<'a> SystemImpl<'a> {
     const STORAGE: StorageFacade = create_storage();
     let mut counters: SystemCounters = SystemCounters::new();
 
-    let mut components: Components = Components {
+    let mut components: Blocks = Blocks {
       thermal_mass: thermal_mass::new(&STORAGE, &mut counters),
       hyst_component: hysteresis::new(&STORAGE, &mut counters),  
       b2f: converter_b2f::new(&STORAGE, &mut counters),
@@ -127,14 +132,28 @@ impl<'a> SystemImpl<'a> {
 
     println!("{:?}", counters);
 
-    SystemImpl {storage: STORAGE, components: components}
+    SystemImpl {
+      storage: STORAGE, 
+      components: components,
+    }
   }
 }
 
-impl<'a> ISystem for SystemImpl<'a> {
-    fn step(&mut self) {
-        self.components.hyst_component.step();
-        self.components.b2f.step();
-        self.components.thermal_mass.step();
-    }
+
+impl<'a> ISystem<'a> for SystemImpl<'a> {
+  const N_BLOCKS: usize = 3;
+
+  fn storage(&self) -> &dyn SystemStorage {
+    &self.storage
+  }
+
+  fn block(&'a self, i: usize) -> Option<&'a dyn IBlock> {
+    match i {
+      0 => Some(&self.components.hyst_component),
+      1 => Some(&self.components.b2f),
+      2 => Some(&self.components.thermal_mass),
+      _ => None
+    }    
+  }
+
 }

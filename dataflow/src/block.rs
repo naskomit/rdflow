@@ -9,12 +9,12 @@ pub trait ReadAccess<T> {
 
 pub trait Access<T> {
   fn get(&self) -> T;
-  fn set(&mut self, v: T);
+  fn set(&self, v: T);
 }
 
 pub trait DerivativeAccess<T> {
   fn der_get(&self) -> T;
-  fn der_set(&mut self, v: T);
+  fn der_set(&self, v: T);
 }
 
 pub trait Initial<T> {
@@ -41,7 +41,7 @@ impl<'a> Access<f64> for Parameter<'a, f64> {
   fn get(&self) -> f64 {
     self.storage.r_param_get(self.id)
   }
-  fn set(&mut self, v: f64) {
+  fn set(&self, v: f64) {
     self.storage.r_param_set(self.id, v)
   }
 }
@@ -57,7 +57,7 @@ impl<'a> Access<bool> for Parameter<'a, bool> {
   fn get(&self) -> bool {
     self.storage.b_param_get(self.id)
   }
-  fn set(&mut self, v: bool) {
+  fn set(&self, v: bool) {
     self.storage.b_out_set(self.id, v)
   }
 }
@@ -118,7 +118,7 @@ impl<'a> Access<f64> for Output<'a, f64> {
   fn get(&self) -> f64 {
     self.storage.r_out_get(self.id)
   }
-  fn set(&mut self, v: f64) {
+  fn set(&self, v: f64) {
     self.storage.r_out_set(self.id, v)
   }
 }
@@ -127,7 +127,7 @@ impl<'a> Access<bool> for Output<'a, bool> {
   fn get(&self) -> bool {
     self.storage.b_out_get(self.id)
   }
-  fn set(&mut self, v: bool) {
+  fn set(&self, v: bool) {
     self.storage.b_out_set(self.id, v)
   }
 }
@@ -153,7 +153,7 @@ impl<'a> Access<bool> for DiscreteState<'a, bool> {
   fn get(&self) -> bool {
     self.storage.b_state_get(self.id)
   }
-  fn set(&mut self, v: bool) {
+  fn set(&self, v: bool) {
     self.storage.b_state_set(self.id, v)
   }
 }
@@ -183,7 +183,7 @@ impl<'a> Access<f64> for ContinuousState<'a, f64> {
   fn get(&self) -> f64 {
     self.storage.r_state_get(self.id)
   }
-  fn set(&mut self, v: f64) {
+  fn set(&self, v: f64) {
     self.storage.r_state_set(self.id, v)
   }
 }
@@ -192,7 +192,7 @@ impl<'a> DerivativeAccess<f64> for ContinuousState<'a, f64> {
   fn der_get(&self) -> f64 {
     self.storage.r_state_der_get(self.id)
   }
-  fn der_set(&mut self, v: f64) {
+  fn der_set(&self, v: f64) {
     self.storage.r_state_der_set(self.id, v)
   }
 }
@@ -233,5 +233,5 @@ impl BlockSize {
 
 
 pub trait IBlock {
-  fn step(&mut self);
+  fn step(&self);
 }
