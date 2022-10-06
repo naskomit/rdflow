@@ -105,6 +105,6 @@ impl SystemCounters {
     }
   }
 
-pub trait System {
+pub trait ISystem {
     fn step(&mut self);
 }

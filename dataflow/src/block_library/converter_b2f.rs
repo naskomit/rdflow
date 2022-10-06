@@ -1,4 +1,4 @@
-use crate::block::{Parameter, Input, Output, DBlock, BlockSize, Access, ReadAccess, Initial};
+use crate::block::{Parameter, Input, Output, IBlock, BlockSize, Access, ReadAccess, Initial};
 use crate::system::{SystemStorage, SystemCounters};
 
 pub struct Block<'a> {
@@ -40,7 +40,7 @@ pub const SIZE: BlockSize = BlockSize {
   ..BlockSize::new()
 };
 
-impl<'a> DBlock for Block<'a> {
+impl<'a> IBlock for Block<'a> {
   fn step(&mut self) {
     let output = self.outputs();
     self.out1.set(output.out1);

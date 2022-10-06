@@ -43,7 +43,7 @@ pub const SIZE: BlockSize = BlockSize {
   ..BlockSize::new()
 };
 
-impl<'a> DBlock for Block<'a> {
+impl<'a> IBlock for Block<'a> {
   fn step(&mut self) {
     let state_update = self.state_update();
     self.t.der_set(state_update.t_dot);

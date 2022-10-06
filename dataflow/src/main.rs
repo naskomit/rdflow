@@ -1,7 +1,7 @@
 // #![feature(adt_const_params)]
 // #![feature(generic_const_exprs)]
 
-use system::{SystemStorage, System};
+use system::{SystemStorage, ISystem};
 
 mod system;
 mod block;

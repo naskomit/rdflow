@@ -1,6 +1,6 @@
-use crate::system::{SystemSize, SystemStorage, System, SystemCounters};
+use crate::system::{SystemSize, SystemStorage, ISystem, SystemCounters};
 use crate::block_library::{hysteresis, thermal_mass, converter_b2f};
-use crate::block::{DBlock};
+use crate::block::{IBlock};
 
 pub struct StorageFacade;
 
@@ -131,7 +131,7 @@ impl<'a> SystemImpl<'a> {
   }
 }
 
-impl<'a> System for SystemImpl<'a> {
+impl<'a> ISystem for SystemImpl<'a> {
     fn step(&mut self) {
         self.components.hyst_component.step();
         self.components.b2f.step();

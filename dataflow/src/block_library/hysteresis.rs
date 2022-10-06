@@ -62,7 +62,7 @@ pub const SIZE: BlockSize = BlockSize {
   ..BlockSize::new()
 };
 
-impl<'a> DBlock for Block<'a> {
+impl<'a> IBlock for Block<'a> {
   fn step(&mut self) {
     let state_update = self.state_update();
     match state_update.state1 {

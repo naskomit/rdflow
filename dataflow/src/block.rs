@@ -232,6 +232,6 @@ impl BlockSize {
 }
 
 
-pub trait DBlock {
+pub trait IBlock {
   fn step(&mut self);
 }
