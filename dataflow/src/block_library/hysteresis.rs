@@ -1,9 +1,9 @@
-use crate::block::*;
-use crate::system::{SystemStorage, SystemCounters};
+use dataflow_core::block::*;
+use dataflow_core::system::{SystemStorage, SystemCounters};
 
 pub struct Block<'a> {
   pub low_threshold: Parameter<'a, f64>,
-  pub high_treshold: Parameter<'a, f64>,
+  pub high_threshold: Parameter<'a, f64>,
   pub out_inverted: Parameter<'a, bool>,
   pub in1: Input<'a, f64>,
   pub out1: Output<'a, bool>,
@@ -12,9 +12,9 @@ pub struct Block<'a> {
 
 pub fn new<'a>(storage: &'a dyn SystemStorage, counters: &mut SystemCounters) -> Block<'a> {
   Block {
-    low_threshold: Parameter::new(storage, counters.next_r_param()).init(0.0),
-    high_treshold: Parameter::new(storage, counters.next_r_param()).init(1.0),
-    out_inverted: Parameter::new(storage, counters.next_b_param()).init(false),
+    low_threshold: Parameter::<f64>::new(storage, counters.next_r_param()).init(0.0),
+    high_threshold: Parameter::<f64>::new(storage, counters.next_r_param()).init(1.0),
+    out_inverted: Parameter::<bool>::new(storage, counters.next_b_param()).init(false),
     in1: Input::new(storage),
     out1: Output::new(storage, counters.next_b_out()),
     state_high: DiscreteState::new(storage, counters.next_b_state()).init(false),
@@ -31,19 +31,20 @@ pub struct StateUpdate {
 
 impl<'a> Block<'a> {
   pub fn outputs(&self) -> OutputUpdate {
-    OutputUpdate { out1: 
-      if self.out_inverted.get() {
-        self.state_high.get() } else {
-          self.state_high.get()
-        }
+    OutputUpdate { out1:      
+      if *self.out_inverted {
+        !*self.state_high
+      } else {
+        *self.state_high
+      }
     }
   }
 
   pub fn state_update(&self) -> StateUpdate {
     let state1_new = 
-      if self.in1.get() < self.low_threshold.get() && self.state_high.get() == false {
+      if *self.in1 < *self.low_threshold && *self.state_high {
           Some(false)
-      } else if self.in1.get() > self.high_treshold.get() && self.state_high.get() == true {
+      } else if *self.in1 > *self.high_threshold && !*self.state_high {
           Some(true)
       } else {
         None

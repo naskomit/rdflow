@@ -1,0 +1,22 @@
+[package]
+name = "dataflow-macros"
+version = "0.0.1"
+autotests = false
+edition = "2021"
+publish = false
+
+[lib]
+proc-macro = true
+
+[[test]]
+name = "tests"
+path = "tests/test1.rs"
+
+[dev-dependencies]
+trybuild = { version = "1.0.49", features = ["diff"] }
+
+[dependencies]
+syn = {version = "1.0.102", features = ["extra-traits"]}
+quote = {version = "1.0.21"}
+proc-macro2 = "1.0.46"
+dataflow-core = {path = "../core"}

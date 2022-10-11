@@ -8,3 +8,9 @@ edition = "2021"
 [dependencies]
 const-default = "1.0.0"
 const-default-derive = "*"
+dataflow-macros = { path = "crates/macros" }
+dataflow-core = {path = "crates/core"}
+
+[[test]]
+name = "macro-tests"
+path = "tests/macro-tests/test1.rs"

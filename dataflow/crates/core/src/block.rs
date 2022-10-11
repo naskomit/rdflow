@@ -1,4 +1,4 @@
-use std::{marker::PhantomData};
+use std::{marker::PhantomData, ops::Deref};
 use const_default::ConstDefault;
 use super::system::{SystemStorage};
 
@@ -39,7 +39,7 @@ impl<'a, T: Copy> Parameter<'a, T> {
 
 impl<'a> Access<f64> for Parameter<'a, f64> {
   fn get(&self) -> f64 {
-    self.storage.r_param_get(self.id)
+    *self.storage.r_param_get(self.id)
   }
   fn set(&self, v: f64) {
     self.storage.r_param_set(self.id, v)
@@ -53,12 +53,28 @@ impl<'a> Initial<f64> for Parameter<'a, f64> {
   }
 }
 
+impl<'a> Deref for Parameter<'a, f64> {
+  type Target = f64;
+
+  fn deref(&self) -> &Self::Target {
+    self.storage.r_param_get(self.id)
+  }
+}
+
 impl<'a> Access<bool> for Parameter<'a, bool> {
   fn get(&self) -> bool {
-    self.storage.b_param_get(self.id)
+    *self.storage.b_param_get(self.id)
   }
   fn set(&self, v: bool) {
-    self.storage.b_out_set(self.id, v)
+    self.storage.b_param_set(self.id, v)
+  }
+}
+
+impl<'a> Deref for Parameter<'a, bool> {
+  type Target = bool;
+
+  fn deref(&self) -> &Self::Target {
+    self.storage.b_param_get(self.id)
   }
 }
 
@@ -90,12 +106,28 @@ impl<'a, T: Copy> Input<'a, T> {
 
 impl<'a> ReadAccess<f64> for Input<'a, f64> {
   fn get(&self) -> f64 {
+    *self.storage.r_out_get(self.output_id.unwrap())
+  }
+}
+
+impl<'a> Deref for Input<'a, f64> {
+  type Target = f64;
+
+  fn deref(&self) -> &Self::Target {
     self.storage.r_out_get(self.output_id.unwrap())
   }
 }
 
 impl<'a> ReadAccess<bool> for Input<'a, bool> {
   fn get(&self) -> bool {
+    *self.storage.b_out_get(self.output_id.unwrap())
+  }
+}
+
+impl<'a> Deref for Input<'a, bool> {
+  type Target = bool;
+
+  fn deref(&self) -> &Self::Target {
     self.storage.b_out_get(self.output_id.unwrap())
   }
 }
@@ -116,7 +148,7 @@ impl<'a, T: Copy> Output<'a, T> {
 
 impl<'a> Access<f64> for Output<'a, f64> {
   fn get(&self) -> f64 {
-    self.storage.r_out_get(self.id)
+    *self.storage.r_out_get(self.id)
   }
   fn set(&self, v: f64) {
     self.storage.r_out_set(self.id, v)
@@ -125,7 +157,7 @@ impl<'a> Access<f64> for Output<'a, f64> {
 
 impl<'a> Access<bool> for Output<'a, bool> {
   fn get(&self) -> bool {
-    self.storage.b_out_get(self.id)
+    *self.storage.b_out_get(self.id)
   }
   fn set(&self, v: bool) {
     self.storage.b_out_set(self.id, v)
@@ -151,12 +183,21 @@ impl<'a, T: Copy> DiscreteState<'a, T> {
 
 impl<'a> Access<bool> for DiscreteState<'a, bool> {
   fn get(&self) -> bool {
-    self.storage.b_state_get(self.id)
+    *self.storage.b_state_get(self.id)
   }
   fn set(&self, v: bool) {
     self.storage.b_state_set(self.id, v)
   }
 }
+
+impl<'a> Deref for DiscreteState<'a, bool> {
+  type Target = bool;
+
+  fn deref(&self) -> &Self::Target {
+    self.storage.b_state_get(self.id)
+  }
+}
+
 
 impl<'a> Initial<bool> for DiscreteState<'a, bool> {
   fn init(mut self, v: bool) -> Self {
@@ -181,16 +222,24 @@ impl<'a, T: Copy> ContinuousState<'a, T> {
 
 impl<'a> Access<f64> for ContinuousState<'a, f64> {
   fn get(&self) -> f64 {
-    self.storage.r_state_get(self.id)
+    *self.storage.r_state_get(self.id)
   }
   fn set(&self, v: f64) {
     self.storage.r_state_set(self.id, v)
   }
 }
 
+impl<'a> Deref for ContinuousState<'a, f64> {
+  type Target = f64;
+
+  fn deref(&self) -> &Self::Target {
+    self.storage.r_state_get(self.id)
+  }
+}
+
 impl<'a> DerivativeAccess<f64> for ContinuousState<'a, f64> {
   fn der_get(&self) -> f64 {
-    self.storage.r_state_der_get(self.id)
+    *self.storage.r_state_der_get(self.id)
   }
   fn der_set(&self, v: f64) {
     self.storage.r_state_der_set(self.id, v)
@@ -204,13 +253,13 @@ impl<'a> Initial<f64> for ContinuousState<'a, f64> {
   }
 }
 
-enum BlockCausality {
-  Functional,
-  State,
-  Mixed
-}
+// enum BlockCausality {
+//   Functional,
+//   State,
+//   Mixed
+// }
 
-#[derive(const_default_derive::ConstDefault)]
+#[derive(const_default_derive::ConstDefault, PartialEq, Eq)]
 pub struct BlockSize {
   pub r_param: usize,
   pub b_param: usize,

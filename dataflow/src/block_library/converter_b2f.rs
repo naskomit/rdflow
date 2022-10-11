@@ -1,5 +1,5 @@
-use crate::block::{Parameter, Input, Output, IBlock, BlockSize, Access, ReadAccess, Initial};
-use crate::system::{SystemStorage, SystemCounters};
+use dataflow_core::block::{Parameter, Input, Output, IBlock, BlockSize, Access, ReadAccess, Initial};
+use dataflow_core::system::{SystemStorage, SystemCounters};
 
 pub struct Block<'a> {
   pub true_value: Parameter<'a, f64>,
@@ -10,8 +10,8 @@ pub struct Block<'a> {
 
 pub fn new<'a>(storage: &'a dyn SystemStorage, counters: &mut SystemCounters) -> Block<'a> {
   Block {
-    true_value: Parameter::new(storage, counters.next_r_param()).init(1.0),
-    false_value: Parameter::new(storage, counters.next_r_param()).init(0.0),
+    true_value: Parameter::<f64>::new(storage, counters.next_r_param()).init(1.0),
+    false_value: Parameter::<f64>::new(storage, counters.next_r_param()).init(0.0),
     in1: Input::new(storage),
     out1: Output::new(storage, counters.next_r_out()),
   }
@@ -24,10 +24,11 @@ pub struct OutputUpdate {
 impl<'a> Block<'a> {
   pub fn outputs(&self) -> OutputUpdate {
     OutputUpdate { out1: 
-      if self.in1.get() {
-        self.true_value.get() } else {
-          self.false_value.get()
-        }
+      if *self.in1 {
+        *self.true_value 
+      } else {
+        *self.false_value
+      }
     }
   }
 

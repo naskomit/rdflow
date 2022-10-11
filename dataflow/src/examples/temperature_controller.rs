@@ -1,6 +1,6 @@
-use crate::system::{SystemSize, SystemStorage, ISystem, SystemCounters};
+use dataflow_core::system::{SystemSize, SystemStorage, ISystem, SystemCounters};
+use dataflow_core::block::{IBlock, Access, DerivativeAccess};
 use crate::block_library::{hysteresis, thermal_mass, converter_b2f};
-use crate::block::{IBlock};
 
 pub struct StorageFacade;
 
@@ -49,31 +49,31 @@ pub const fn create_storage() -> StorageFacade {
       SS
     }
 
-    fn r_param_get(&self, ind: usize) -> f64 {
-      unsafe { STORAGE.r_param[ind] }
+    fn r_param_get(&self, ind: usize) -> &f64 {
+      unsafe { &STORAGE.r_param[ind] }
     }
     fn r_param_set(&self, ind: usize, value: f64) {
       unsafe { STORAGE.r_param[ind] = value }
     }
 
-    fn b_param_get(&self, ind: usize) -> bool {
-      unsafe {STORAGE.b_param[ind]}
+    fn b_param_get(&self, ind: usize) -> &bool {
+      unsafe {&STORAGE.b_param[ind]}
     }
     fn b_param_set(&self, ind: usize, value: bool) {
       unsafe {STORAGE.b_param[ind] = value}
 
     }
     
-    fn r_state_get(&self, ind: usize) -> f64 {
-      unsafe {STORAGE.r_state[ind]}
+    fn r_state_get(&self, ind: usize) -> &f64 {
+      unsafe {&STORAGE.r_state[ind]}
 
     }
     fn r_state_set(&self, ind: usize, value: f64) {
       unsafe {STORAGE.r_state[ind] = value}
 
     }
-    fn r_state_der_get(&self, ind: usize) -> f64 {
-      unsafe {STORAGE.r_state_der[ind]}
+    fn r_state_der_get(&self, ind: usize) -> &f64 {
+      unsafe {&STORAGE.r_state_der[ind]}
 
     }
     fn r_state_der_set(&self, ind: usize, value: f64) {
@@ -81,8 +81,8 @@ pub const fn create_storage() -> StorageFacade {
 
     }
     
-    fn b_state_get(&self, ind: usize) -> bool {
-      unsafe {STORAGE.b_state[ind]}
+    fn b_state_get(&self, ind: usize) -> &bool {
+      unsafe {&STORAGE.b_state[ind]}
 
     }
     fn b_state_set(&self, ind: usize, value: bool) {
@@ -90,8 +90,8 @@ pub const fn create_storage() -> StorageFacade {
 
     }
 
-    fn r_out_get(&self, ind: usize) -> f64 {
-      unsafe {STORAGE.r_out[ind]}
+    fn r_out_get(&self, ind: usize) -> &f64 {
+      unsafe {&STORAGE.r_out[ind]}
 
     }
     fn r_out_set(&self, ind: usize, value: f64) {
@@ -99,8 +99,8 @@ pub const fn create_storage() -> StorageFacade {
 
     }
     
-    fn b_out_get(&self, ind: usize) -> bool {
-      unsafe {STORAGE.b_out[ind]}
+    fn b_out_get(&self, ind: usize) -> &bool {
+      unsafe {&STORAGE.b_out[ind]}
 
     }
     fn b_out_set(&self, ind: usize, value: bool) {
@@ -125,10 +125,19 @@ impl<'a> SystemImpl<'a> {
       hyst_component: hysteresis::new(&STORAGE, &mut counters),  
       b2f: converter_b2f::new(&STORAGE, &mut counters),
     };
-
+    
     components.hyst_component.in1.connect(&components.thermal_mass.t_out);
     components.b2f.in1.connect(&components.hyst_component.out1);
     components.thermal_mass.qdot.connect(&components.b2f.out1);
+
+    components.thermal_mass.cp.set(4000.0);
+    components.thermal_mass.area.set(1.0);
+    
+    components.hyst_component.low_threshold.set(30.0);
+    components.hyst_component.high_threshold.set(32.0);
+    components.hyst_component.out_inverted.set(true);
+
+    components.b2f.true_value.set(500.0);
 
     println!("{:?}", counters);
 
@@ -137,6 +146,8 @@ impl<'a> SystemImpl<'a> {
       components: components,
     }
   }
+
+  // pub fn 
 }
 
 
@@ -154,6 +165,36 @@ impl<'a> ISystem<'a> for SystemImpl<'a> {
       2 => Some(&self.components.thermal_mass),
       _ => None
     }    
+  }
+
+  fn step(&'a self) {
+    let components = &self.components;
+
+    // thermal mass
+    let thermal_mass_out = components.thermal_mass.outputs();
+    components.thermal_mass.t_out.set(thermal_mass_out.t_out);
+
+    // hysteresis
+    let hyst_state_update = components.hyst_component.state_update();
+    match hyst_state_update.state1 {
+      Some(x) => components.hyst_component.state_high.set(x),
+      None => ()
+    }
+
+    let hyst_output = components.hyst_component.outputs();
+    components.hyst_component.out1.set(hyst_output.out1);
+
+
+    // b2f
+    let b2f_output = components.b2f.outputs();
+    components.b2f.out1.set(b2f_output.out1);
+
+
+    // thermal mass
+    let thermal_mass_su = components.thermal_mass.state_update();
+    components.thermal_mass.t.der_set(thermal_mass_su.t_dot);
+
+
   }
 
 }

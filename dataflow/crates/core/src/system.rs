@@ -38,26 +38,66 @@ impl SystemSize {
 pub trait SystemStorage : Sync {
     fn sizes(&self) -> SystemSize;
 
-    fn r_param_get(&self, ind: usize) -> f64;
+    fn r_param_get(&self, ind: usize) -> &f64;
     fn r_param_set(&self, ind: usize, value: f64);
     
-    fn b_param_get(&self, ind: usize) -> bool;
+    fn b_param_get(&self, ind: usize) -> &bool;
     fn b_param_set(&self, ind: usize, value: bool);
     
     
-    fn r_state_get(&self, ind: usize) -> f64;
+    fn r_state_get(&self, ind: usize) -> &f64;
     fn r_state_set(&self, ind: usize, value: f64);
-    fn r_state_der_get(&self, ind: usize) -> f64;
+    fn r_state_der_get(&self, ind: usize) -> &f64;
     fn r_state_der_set(&self, ind: usize, value: f64);
     
-    fn b_state_get(&self, ind: usize) -> bool;
+    fn b_state_get(&self, ind: usize) -> &bool;
     fn b_state_set(&self, ind: usize, value: bool);
 
-    fn r_out_get(&self, ind: usize) -> f64;
+    fn r_out_get(&self, ind: usize) -> &f64;
     fn r_out_set(&self, ind: usize, value: f64);
     
-    fn b_out_get(&self, ind: usize) -> bool;
+    fn b_out_get(&self, ind: usize) -> &bool;
     fn b_out_set(&self, ind: usize, value: bool);
+
+    fn print_params(&self) {
+        print!("r_param: ");
+        for i in 0..self.sizes().r_param {
+            print!("{},", self.r_param_get(i));
+        }
+        println!("");
+
+        print!("b_param: ");
+        for i in 0..self.sizes().b_param {
+            print!("{},", self.b_param_get(i));
+        }
+        println!("");
+    }
+
+    fn print_states_outputs(&self) {
+        print!("r_state: ");
+        for i in 0..self.sizes().r_state {
+            print!("{} ({}),", self.r_state_get(i), self.r_state_der_get(i));
+        }
+        println!("");
+
+        print!("b_state: ");
+        for i in 0..self.sizes().b_state {
+            print!("{},", self.b_state_get(i));
+        }
+        println!("");
+
+        print!("r_out: ");
+        for i in 0..self.sizes().r_out {
+            print!("{},", self.r_out_get(i));
+        }
+        println!("");
+
+        print!("b_out: ");
+        for i in 0..self.sizes().b_out {
+            print!("{},", self.b_out_get(i));
+        }
+        println!("");
+    }
 
 }
 
@@ -150,14 +190,15 @@ pub trait ISystem<'a> : Sized {
         BlockIterator::<Self>::new(self)
     }
   
-    fn step(&'a self) {
-        // for i in 0..Self::N_BLOCKS {
-        //     self.block(i).unwrap().step();
-        // }
-        for block in self.blocks() {
-            block.step();
-        }
-    }
+    fn step(&'a self);
+    //  {
+    //     // for i in 0..Self::N_BLOCKS {
+    //     //     self.block(i).unwrap().step();
+    //     // }
+    //     for block in self.blocks() {
+    //         block.step();
+    //     }
+    // }
 
     fn advance_continuous_state(&self, dt: f64) {
         let storage = self.storage();
