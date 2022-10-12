@@ -26,7 +26,7 @@ struct ThermalMass<'a> {
   pub t_amb: Parameter<'a, f64>,  
   pub qdot: Input<'a, f64>,
   #[initial = 20.0]
-  pub t: ContinuousState<'a, i64>,
+  pub t: ContinuousState<'a, f64>,
   pub t_out: Output<'a, f64>,
 }
 

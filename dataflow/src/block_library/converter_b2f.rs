@@ -1,4 +1,4 @@
-use dataflow_core::block::{Parameter, Input, Output, IBlock, BlockSize, Access, ReadAccess, Initial};
+use dataflow_core::block::{Parameter, Input, Output, IBlock, BlockSize, Access, Initial};
 use dataflow_core::system::{SystemStorage, SystemCounters};
 
 pub struct Block<'a> {
