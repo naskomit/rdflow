@@ -253,11 +253,6 @@ impl<'a> Initial<f64> for ContinuousState<'a, f64> {
   }
 }
 
-// enum BlockCausality {
-//   Functional,
-//   State,
-//   Mixed
-// }
 
 #[derive(const_default_derive::ConstDefault, PartialEq, Eq)]
 pub struct BlockSize {
@@ -281,6 +276,59 @@ impl BlockSize {
 }
 
 
+// pub trait IStateBlock : IBlock {
+
+// }
+
+// pub trait IFunctionBlock {
+
+// }
+
+// pub trait IMixedBlock {
+
+// }
+
+
+pub trait ApplyStateUpdate {
+  fn apply(&self);
+}
+pub trait ApplyOutputUpdate {
+  fn apply(&self);
+}
+
+#[derive(Clone, Copy)]
+pub struct StateUpdateFunction<'a> {
+  pub f: &'a dyn ApplyStateUpdate
+}
+
+#[derive(Clone, Copy)]
+pub struct OutputUpdateFunction<'a> {
+  pub f: &'a dyn ApplyOutputUpdate
+}
+
+pub struct FunctionalBlockComputation<'a> {
+  pub output_update_fn: OutputUpdateFunction<'a>
+}
+pub struct StateBlockComputation<'a> {
+  pub state_update_fn: StateUpdateFunction<'a>, 
+  pub output_update_fn: OutputUpdateFunction<'a>
+}
+pub struct MixedBlockComputation<'a> {
+  pub state_update_fn: StateUpdateFunction<'a>, 
+  pub output_update_fn: OutputUpdateFunction<'a>
+}
+
+pub enum BlockComputation<'a> {
+  Functional(FunctionalBlockComputation<'a>),
+  State(StateBlockComputation<'a>),
+  Mixed(MixedBlockComputation<'a>)
+}
+
+pub enum UpdateComputation<'a> {
+  State(StateUpdateFunction<'a>),
+  Output(OutputUpdateFunction<'a>)
+}
+
 pub trait IBlock {
-  fn step(&self);
+  fn get_computation(&self) -> BlockComputation;
 }

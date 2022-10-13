@@ -1,0 +1,10 @@
+[package]
+name = "macroexpansion-test"
+version = "0.0.1"
+autotests = false
+edition = "2021"
+publish = false
+
+[dependencies]
+dataflow-core = {path = "../core"}
+# dataflow-reflect = {path = "../reflect"}

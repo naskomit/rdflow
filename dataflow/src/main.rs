@@ -7,6 +7,7 @@ fn main() {
 
   let system = examples::temperature_controller::SystemImpl::new();
   let storage = &system.storage;
+  let computations = examples::temperature_controller::SystemImpl::computations(&system);
   std::process::Command::new("clear").status().unwrap();
   println!("======================== Begin simulation ========================");
   println!("=== Params ===");
@@ -26,9 +27,9 @@ fn main() {
   while i < 100 {
       t += dt;
       println!("=== t = {} (step {})", t, i);
-      system.step();
+      system.step(&computations);
       system.advance_continuous_state(dt);
-      storage.print_states_outputs();
+      system.storage().print_states_outputs();
       i = i + 1;
   }
 

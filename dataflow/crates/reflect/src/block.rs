@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use std::marker::PhantomData;
-use std::matches;
+use proc_macro2::Span;
 
 #[derive(Default, Debug, Clone)]
 pub enum DType {
@@ -37,6 +37,7 @@ impl FromStr for BlockFieldType {
 #[derive(Default, Debug)]
 pub struct BlockField {
   pub name: String,
+  pub span: Option<Span>,
   pub dtype: DType,
   pub btype: BlockFieldType
 }
@@ -69,6 +70,7 @@ pub struct State<T> {
 #[derive(Default, Debug)]
 pub struct Block {
   pub name: String,
+  pub span: Option<Span>,
 
   pub r_param: Vec<Parameter<f64>>,
   pub b_param: Vec<Parameter<bool>>,
@@ -94,8 +96,8 @@ pub trait AttachTo {
 }
 
 macro_rules! attach_impl {
-    ($ty: ty, $dest: ident) => {
-      impl AttachTo for $ty {
+  ($ty: ty, $dest: ident) => {
+    impl AttachTo for $ty {
         fn attach_to (self, block: &mut Block) {
             block.$dest.push(self);
         }

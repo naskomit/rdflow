@@ -30,6 +30,16 @@ struct ThermalMass<'a> {
   pub t_out: Output<'a, f64>,
 }
 
+// use dataflow_core::system::{SystemSize, SystemStorage, ISystem, SystemCounters, static_storage};
+// use dataflow_core::block::{IBlock, Access, DerivativeAccess, BlockComputation, UpdateComputation};
+// use crate::block_library::{hysteresis, thermal_mass, converter_b2f};
+
+// static_storage!(STORAGE, 
+//   thermal_mass::Block<'a>, 
+//   hysteresis::Block<'a>, 
+//   converter_b2f::Block<'a>
+// );
+
 #[test]
 fn tests() {
   //let mass = ThermalMass::new();

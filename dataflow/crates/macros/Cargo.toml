@@ -20,3 +20,4 @@ syn = {version = "1.0.102", features = ["extra-traits"]}
 quote = {version = "1.0.21"}
 proc-macro2 = "1.0.46"
 dataflow-core = {path = "../core"}
+dataflow-reflect = {path = "../reflect"}
