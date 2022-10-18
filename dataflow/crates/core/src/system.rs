@@ -3,7 +3,8 @@ use std::marker::PhantomData;
 use const_default::ConstDefault;
 use const_default_derive::ConstDefault;
 
-use crate::block::{BlockSize, IBlock, UpdateComputation};
+use crate::block::{BlockSize, IBlock, UpdateComputation, Parameter, ContinuousState, DiscreteState, Output, ReadAccess};
+
 
 #[allow(dead_code)]
 #[derive(Default, Debug, ConstDefault, PartialEq, Eq)]
@@ -99,6 +100,57 @@ pub trait SystemStorage : Sync {
         println!("");
     }
 
+}
+
+pub enum SystemStorageItemId {
+    RealParameter(usize),
+    BoolParameter(usize),
+    RealState(usize),
+    BoolState(usize),
+    RealOutput(usize),
+    BoolOutput(usize),
+}
+
+impl<'a> From<&Parameter<'a, f64>> for SystemStorageItemId {
+    fn from(x: &Parameter<'a, f64>) -> Self {
+        Self::RealParameter(x.id())
+    }
+}
+
+impl<'a> From<&Parameter<'a, bool>> for SystemStorageItemId {
+    fn from(x: &Parameter<'a, bool>) -> Self {
+        Self::BoolParameter(x.id())
+    }
+}
+
+impl<'a> From<&ContinuousState<'a, f64>> for SystemStorageItemId {
+    fn from(x: &ContinuousState<'a, f64>) -> Self {
+        Self::RealState(x.id())
+    }
+}
+
+impl<'a> From<&DiscreteState<'a, bool>> for SystemStorageItemId {
+    fn from(x: &DiscreteState<'a, bool>) -> Self {
+        Self::BoolState(x.id())
+    }
+}
+
+impl<'a> From<&Output<'a, f64>> for SystemStorageItemId {
+    fn from(x: &Output<'a, f64>) -> Self {
+        Self::RealOutput(x.id())
+    }
+}
+
+impl<'a> From<&Output<'a, bool>> for SystemStorageItemId {
+    fn from(x: &Output<'a, bool>) -> Self {
+        Self::BoolOutput(x.id())
+    }
+}
+
+
+#[derive(Default)]
+pub struct SystemStorageSelector {
+    pub items: Vec<SystemStorageItemId>
 }
 
 #[derive(ConstDefault, Debug)]

@@ -9,9 +9,9 @@ static_storage!(Storage,
 );
 
 pub struct Blocks<'a> {
-  thermal_mass: thermal_mass::Block<'a>,
-  hyst_component: hysteresis::Block<'a>,
-  b2f: converter_b2f::Block<'a>
+  pub thermal_mass: thermal_mass::Block<'a>,
+  pub hyst_component: hysteresis::Block<'a>,
+  pub b2f: converter_b2f::Block<'a>
 }
 
 pub struct SystemImpl<'a> {

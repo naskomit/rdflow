@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 const-default = "1.0.0"
 const-default-derive = "*"
+csv = "1.1"

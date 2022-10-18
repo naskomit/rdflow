@@ -2,7 +2,7 @@ use std::{marker::PhantomData, ops::Deref};
 use const_default::ConstDefault;
 use super::system::{SystemStorage};
 
-
+/** Traits */
 pub trait ReadAccess<T> {
   fn get(&self) -> T;
 }
@@ -21,6 +21,7 @@ pub trait Initial<T> {
   fn init(self, v: T) -> Self;
 }
 
+
 /** Parameters */
 pub struct Parameter<'a, T: Copy> {
   storage: &'a dyn SystemStorage,
@@ -28,12 +29,14 @@ pub struct Parameter<'a, T: Copy> {
   _marker: PhantomData<&'a T>,
 }
 
-
 impl<'a, T: Copy> Parameter<'a, T> {  
   pub const fn new(storage: &'a dyn SystemStorage, id: usize) -> Parameter<'a, T> {
     Parameter::<'a, T> { 
       storage: storage, id: id, _marker: PhantomData {}
     }
+  }
+  pub fn id(&self) -> usize {
+    self.id
   }
 }
 
@@ -144,6 +147,9 @@ impl<'a, T: Copy> Output<'a, T> {
       storage: storage, id: id, _marker:  PhantomData {}
     }
   }
+  pub fn id(&self) -> usize {
+    self.id
+  }
 }
 
 impl<'a> Access<f64> for Output<'a, f64> {
@@ -178,6 +184,9 @@ impl<'a, T: Copy> DiscreteState<'a, T> {
     DiscreteState::<'a, T> { 
       storage: storage, id: id, _marker:  PhantomData {}
     }
+  }
+  pub fn id(&self) -> usize {
+    self.id
   }
 }
 
@@ -217,6 +226,9 @@ impl<'a, T: Copy> ContinuousState<'a, T> {
     ContinuousState::<'a, T> { 
       storage: storage, id: id, _marker:  PhantomData {}
     }
+  }
+  pub fn id(&self) -> usize {
+    self.id
   }
 }
 
@@ -274,20 +286,6 @@ impl BlockSize {
     <BlockSize as ConstDefault>::DEFAULT
   }
 }
-
-
-// pub trait IStateBlock : IBlock {
-
-// }
-
-// pub trait IFunctionBlock {
-
-// }
-
-// pub trait IMixedBlock {
-
-// }
-
 
 pub trait ApplyStateUpdate {
   fn apply(&self);

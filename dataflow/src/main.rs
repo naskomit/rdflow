@@ -1,14 +1,21 @@
 use dataflow_core::system::{SystemStorage, ISystem};
+use dataflow_core::writer::{CSVWriter, IWriter};
 use dataflow::examples;
 // use dataflow::const_fns;
 
 fn main() {
+  // std::process::Command::new("clear").status().unwrap();
 
 
   let system = examples::temperature_controller::SystemImpl::new();
   let storage = &system.storage;
+  let mut writer = CSVWriter::new("out/temperature_out_1.csv");
+  
+  writer.add_field(&system.components.b2f.out1);
+  writer.add_field(&system.components.thermal_mass.t);
+  
+  
   let computations = examples::temperature_controller::SystemImpl::computations(&system);
-  std::process::Command::new("clear").status().unwrap();
   println!("======================== Begin simulation ========================");
   println!("=== Params ===");
   storage.print_params();
@@ -30,6 +37,8 @@ fn main() {
       system.step(&computations);
       system.advance_continuous_state(dt);
       system.storage().print_states_outputs();
+      // TODO Error?
+      writer.write_step(storage, t).unwrap();
       i = i + 1;
   }
 
